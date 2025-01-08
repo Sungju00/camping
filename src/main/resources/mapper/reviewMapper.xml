@@ -4,32 +4,42 @@
  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
  <!-- namespace는 반드시 mapper 위치로 설정해야 된다. -->
-<mapper namespace="com.ict.camping.review.mapper.ReviewMapper">
-	<select id="getReviewList" parameterType="String" resultType="com.ict.camping.review.vo.ReviewVO">
-		select * 
-		from Review 
-		where contentId = #{contentId}
-	</select>
-
-	<!-- <select id="getReviewById" parameterType="String"  resultType="ReviewVO" >
-		select * from Review where review_idx = #{review_idx}
+<mapper namespace="com.ict.camping.domain.review.mapper.ReviewMapper">
+	<select id="getReviewList" parameterType="String" resultType="com.ict.camping.domain.review.vo.ReviewVO">
+		SELECT 
+        c.*,
+        f.file_idx,
+        f.file_name,
+        f.file_path,
+        f.file_size,
+        f.file_type
+    FROM 
+        camping_reviews c
+    LEFT JOIN 
+        files f ON c.file_idx = f.file_idx
+	WHERE
+		contentId = #{contentId}
+	ORDER BY created_at DESC
 	</select>
 	<delete id="getReviewDelete" parameterType="String">
-		delete from Review where review_idx = #{review_idx}
+		delete from camping_reviews where review_idx = #{review_idx}
 	</delete>
 	<update id="getReviewUpdate" parameterType="ReviewVO">
-		update Review
-		set review_name = #{review_name},review_subject=#{review_subject}, review_email=#{review_email}, review_content=#{review_content}
+		update camping_reviews
+		set user_idx = #{user_idx}, rating = #{rating}, title = #{title}, content = #{content}, created_at = NOW()
 		where review_idx = #{review_idx}
-	</update> -->
-
-	<insert id="getReviewWrite" parameterType="rvo">
-        INSERT INTO Review (
-            contentId, user_idx, rating, title, content, filename, created_at
+	</update>
+	<insert id="getReviewWrite" parameterType="ReviewVO">
+        INSERT INTO camping_reviews (
+            contentId, user_idx, username, rating, title, content, file_idx, created_at
         ) VALUES (
-            #{contentId}, 1, #{rating}, #{title}, #{content}, #{filename}, NOW()
+            #{contentId}, #{user_idx}, #{username}, #{rating}, #{title}, #{content}, #{file_idx}, NOW()
         )
     </insert>
-</mapper>
-   
+	<select id="countReview" parameterType="String" resultType="Integer">
+		select count(*) from camping_reviews where contentId = #{contentId}
+	</select>
+	<select id="getFileDetail" resultType="com.ict.camping.admin.files.vo.AfileVO">
+		select * from files where file_idx=#{file_idx}
+    </select>
 </mapper>

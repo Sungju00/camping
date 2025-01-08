@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ict.camping.domain.myPage.mapper.MyPageMapper">
+    <select id="getMyFavoriteCampingSites" parameterType="String" resultType="String">
+        SELECT contentId FROM camping_likes WHERE user_idx = #{user_idx}
+    </select>
+
+    <select id="getCampingSitesById" parameterType="list" resultType="CampingSiteVO">
+        SELECT * FROM campingsites WHERE contentId IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <delete id="deleteMyCampingSite" parameterType="map">
+        DELETE FROM camping_likes
+        WHERE user_idx = #{user_idx}
+        AND contentId = #{contentId}
+    </delete>
+
+    <select id="getUsageHistory" parameterType="String" resultType="UsageHistoryVO">
+        SELECT c.facltNm, u.* FROM usage_history u JOIN campingsites c
+        ON c.contentId = u.contentId
+        WHERE user_idx = #{user_idx}
+    </select>
+
+    <select id="getMyInquiryHistory" parameterType="String" resultType="InquiryVO">
+        SELECT * FROM inquiry i
+        LEFT JOIN files f ON i.file_idx = f.file_idx
+        LEFT JOIN inquiry_answer a ON i.inquiry_idx = a.inquiry_idx
+        WHERE user_idx = #{user_idx}
+    </select>
+
+    <select id="getCampingLikesCount">
+        SELECT COUNT(*) FROM camping_likes WHERE contentId = #{contentId}
+    </select>
+
+    <select id="getMyReviews" parameterType="String" resultType="MyReviewVO">
+        SELECT r.*, f.file_name, f.file_path, c.facltNm, c.firstImageUrl FROM camping_reviews r
+        LEFT JOIN files f ON r.file_idx = f.file_idx
+        LEFT JOIN campingsites c ON r.contentId = c.contentId
+        WHERE user_idx = #{user_idx};
+    </select>
+</mapper>

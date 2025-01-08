@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ict.camping.admin.inquiry.mapper.AInquiryMapper">
+
+    <!-- 모든 문의 조회 -->
+    <select id="findAllInquiry" resultType="com.ict.camping.admin.inquiry.vo.AInquiryVO">
+        SELECT 
+            i.*, 
+            u.username, 
+            u.id, 
+            u.email, 
+            u.phone
+        FROM 
+            inquiry i
+        JOIN 
+            users u ON i.user_idx = u.user_idx
+        ORDER BY 
+            i.created_at DESC
+    </select>
+
+    <!-- 특정 문의 상세 조회 -->
+    <select id="findInquiryDetail" parameterType="String" resultType="com.ict.camping.admin.inquiry.vo.AInquiryVO">
+        SELECT 
+            i.*, 
+            u.username, 
+            u.id, 
+            u.email, 
+            u.phone
+        FROM 
+            inquiry i
+        JOIN 
+            users u ON i.user_idx = u.user_idx
+        WHERE 
+            i.inquiry_idx = #{inquiry_idx}
+    </select>
+
+    <select id="findInquiryAnswer" parameterType="String" resultType="com.ict.camping.admin.inquiry.vo.AInquiryAnswerVO">
+        select * from inquiry_answer where inquiry_idx = #{inquiry_idx}
+    </select>
+
+    <!-- 관리자 삭제 -->
+    <delete id="deleteAdmin" parameterType="String">
+        DELETE FROM admins WHERE admin_idx = #{admin_idx}
+    </delete>
+
+    <!-- 관리자 추가 -->
+    <insert id="insertAnswer" parameterType="com.ict.camping.admin.inquiry.vo.AInquiryAnswerVO">
+        INSERT INTO inquiry_answer (inquiry_idx, answer, admin_idx, created_at)
+        VALUES (#{inquiry_idx}, #{answer}, #{admin_idx}, NOW())
+    </insert>
+
+    <!-- 사용자 중복 확인 -->
+    <select id="checkAnswer" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM inquiry_answer WHERE inquiry_idx = #{inquiry_idx}
+    </select>
+
+    <!-- 답변 수정 -->
+    <update id="updateAnswer" parameterType="com.ict.camping.admin.inquiry.vo.AInquiryAnswerVO">
+        update inquiry_answer
+        set answer = #{answer},
+        admin_idx = #{admin_idx},
+        created_at = Now()
+        where inquiry_idx = #{inquiry_idx}
+    </update>
+
+</mapper>
